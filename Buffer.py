@@ -6,19 +6,24 @@ class Buffer(Component.Component):
     def __init__(self, name, model, config, sub_component=None):
         super().__init__(name, model, config, sub_component)
         self._buffer_cell = Buffer_cell.BufferCell("BufferCell", "buffer_model", config)  # one buffer cell
-        self.weight_precision = int(config["HardwareConfig"]["weight_precision"])
+        self._weight_precision = int(config["HardwareConfig"]["weight_precision"])
+        self.bus_size = int(config[name]["bus_size"])
         self._kernel_size = int(config["CnnConfig"]["kernel_height"]) * int(config["CnnConfig"]["kernel_width"])
-        self._memory_size = self.weight_precision * self._kernel_size 
-        self.memory_size = self.convert_size(self._memory_size)
-        self.read_power_per_weight = self._buffer_cell.read_power * self.weight_precision
-        self.write_power_per_weight = self._buffer_cell.write_power * self.weight_precision
-        self.read_delay_per_weight = self._buffer_cell.read_delay 
-        self.write_delay_per_weight = self._buffer_cell.write_delay 
+        self.bus_size = int(config[name]["bus_size"])
+        self.memory_bit_size = self._weight_precision * self._kernel_size 
+        self.memory_size = self.convert_size(self.memory_bit_size)
+        self.read_power_per_weight = self._buffer_cell.read_power * self._weight_precision
+        self.write_power_per_weight = self._buffer_cell.write_power * self._weight_precision
+        self.read_delay_per_weight = self._buffer_cell.read_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
+        self.write_delay_per_weight = self._buffer_cell.write_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
         self.read_per_kernel = self.read_power()
         self.write_per_kernel = self.write_power()
         self.shift_power_per_kernel = self.shift_power()
         self.delay_per_kernel = self._buffer_cell.read_delay 
-        
+
+        self.total_delay = 0#TODO: check with others
+        self.total_power = 0 #TODO: check with others
+        self.total_area = self.area + (self.memory_bit_size * self._buffer_cell.total_area)
         
 
 
