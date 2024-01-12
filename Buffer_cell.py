@@ -7,3 +7,4 @@ class BufferCell(Component.Component):
         self.write_power = float(config[name]["write_power"].split(',')[self.model].strip())
         self.read_delay = float(config[name]["read_delay"].split(',')[self.model].strip())
         self.write_delay = float(config[name]["write_delay"].split(',')[self.model].strip())
+        

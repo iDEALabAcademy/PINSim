@@ -51,6 +51,9 @@ class Main_System(Component.Component):
         self.sensing_delay = self.sensing_pixel_array_delay + self.sensing_adc_array_delay
         self.computing_delay = self.compute_pixel_array_delay + self.compute_adc_array_delay + self.global_memory_read_delay + self.buffer_memory_write_delay + self.buffer_memory_read_delay
         
+        #system area
+        self.total_area = self.area + self._adc_array.total_area + self._adc_array.total_area + self._global_memory.total_area + self._buffer_memory.total_area
+
     # def total_write_in_global(self):
     #     return self._global_memory.write_power_per_weight * self._network.total_weights
     
