@@ -17,12 +17,12 @@ class AdcArray(Component.Component):
         self.total_power_in_compute = self.power + self.power_adcs(self.total_adcs_in_compute) + self.power_adc_compute_addon()
         self.total_delay_in_compute = self.delay + self.delay_adcs() + self.delay_adc_compute_addon()
 
-        self.total_power_in_sensing = self.power + self.power_adcs(self.total_adcs_in_sensing) + self.power_adc_compute_addon()
+        self.total_power_in_sensing = self.power + self.power_adcs(self.total_adcs_in_sensing) 
         self.total_delay_in_sensing = self.delay + self.delay_adcs()
 
         self.total_power = ((self.total_power_in_compute * self._cp_percentage) + (self.total_power_in_sensing * ( 100 - self._cp_percentage)))/100.0
-        self.total_area =  self.area + self.area_adcs() + self.delay_adc_compute_addon()
-        self.total_delay = max(self.total_delay_in_sensing, self.total_delay_in_compute )
+        self.total_area =  self.area + self.area_adcs() + self.area_adc_compute_addon()
+        self.total_delay = max(self.total_delay_in_sensing, self.total_delay_in_compute)
 
 
     def power_adcs(self,adc_number):
@@ -32,7 +32,7 @@ class AdcArray(Component.Component):
         return self._adc.get_delay()
 
     def area_adcs(self):
-        return self.total_adcs_in_compute * self._adc.get_area()
+        return max(self.total_adcs_in_compute, self.total_adcs_in_sensing) * self._adc.get_area() #reuse ADC in sensing and computing
 
     def power_adc_compute_addon(self):
         return self.is_cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_power() * self.cp_per_adc

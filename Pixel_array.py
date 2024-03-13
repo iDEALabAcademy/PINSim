@@ -1,11 +1,13 @@
 import Component
 import Network
 import math
+import Sizing
 class PixelArray(Component.Component):
 
     def __init__(self, name, model, config, sub_component=None):
         super().__init__(name, model, config, sub_component)
         self._pixel = Component.Component("Pixel", "pixel_model", config)# one _pixel model
+        self._sizing = Sizing.Sizing(config) 
         self._cp_pixel = Component.Component("PixelComputeAddon", "pixel_cp_model", config)# one compute addon model for in _pixel
         self.width = int(config["HardwareConfig"]["pixel_array_width"])
         self.height = int(config["HardwareConfig"]["pixel_array_height"])
@@ -19,13 +21,13 @@ class PixelArray(Component.Component):
         self.total_pixels = self.width * self.height
         self.active_pixels = math.ceil(self.width/float(self.box_size)) * math.ceil(self.height/float(self.box_size))
         self.total_power_in_compute = self.power + self.power_pixel_compute_addon() + self.power_pixels()
-        self.total_power_in_sensing = self.power + (self.power_pixels() * self.active_pixels) / self.total_pixels 
+        self.total_power_in_sensing = self.power + (self._pixel.get_power() * self.active_pixels) #assume in the sensing mode only central pixels are On.
         self.total_power = ((self.total_power_in_compute * self._cp_percentage) + (self.total_power_in_sensing * ( 100 - self._cp_percentage)))/100.0
 
         self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * self.outfmap
         self.total_delay_in_sensing = self.delay + self.delay_pixels() * math.ceil(self.height/float(self.box_size))
 
-        self.total_delay = self.delay + self.delay_pixel_compute_addon() + self.delay_pixels()
+        self.total_delay = max(self.total_delay_in_compute, self.total_delay_in_sensing)
         self.total_area = self.area + self.area_pixel_compute_addon() + self.area_pixels()
 
     def power_pixel_compute_addon(self):
