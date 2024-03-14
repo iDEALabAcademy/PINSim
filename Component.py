@@ -31,13 +31,19 @@ class Component:
     def get_area(self):
         return self.total_area
     
-    def print_detail(self, tab = ""):
+    def print_detail(self, tab=""):
         tab += "\t"
         result = ""
         result += ('****************************\n')
         for attr, value in self.__dict__.items():
             if not attr.startswith('_'):
-                 result += tab + f"{attr} = {value}\n"
+                if isinstance(value, float):  # Check if the value is a float
+                    # Format float in scientific notation with three decimal places
+                    formatted_value = f"{value:.3e}"  
+                    result += tab + f"{attr} = {formatted_value}\n"
+                else:
+                    result += tab + f"{attr} = {value}\n"
         return result
+
 
 

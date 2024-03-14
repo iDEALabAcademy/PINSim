@@ -16,35 +16,18 @@ class Buffer(Component.Component):
             self.memory_size = self.convert_size(self.memory_bit_size)
             self.read_power_per_weight = self._buffer_cell.read_power * self._weight_precision
             self.write_power_per_weight = self._buffer_cell.write_power * self._weight_precision
-            self.read_delay_per_weight = self._buffer_cell.read_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
-            self.write_delay_per_weight = self._buffer_cell.write_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
+            self.read_delay_per_weight = self._buffer_cell.read_delay  #TODO: check it with others
+            self.write_delay_per_weight = self._buffer_cell.write_delay  #TODO: check it with others
+            self.number_of_weight_read_per_clock = self.bus_size/self._weight_precision
+
             self.read_per_kernel = self.read_power()
             self.write_per_kernel = self.write_power()
             self.shift_power_per_kernel = self.shift_power()
             self.delay_per_kernel = self._buffer_cell.read_delay 
-            self.total_delay = 0#TODO: check with others
-            self.total_power = 0 #TODO: check with others
+            self.total_delay = self.delay + self._buffer_cell.total_delay       #TODO: check with others
+            self.total_power = self.power + (self._buffer_cell.total_power * self.memory_bit_size) #static power of memory #TODO: check with others
             self.total_area = self.area + (self.memory_bit_size * self._buffer_cell.total_area)
-        else:#  In MLP there is no need to buffer, user can set this part to zero in the config file
-            self._weight_precision = 0
-            self.bus_size = 0
-            self._kernel_size = 0
-            self.bus_size = 0
-            self.memory_bit_size = 0
-            self.memory_size = 0
-            self.read_power_per_weight = 0
-            self.write_power_per_weight = 0
-            self.read_delay_per_weight = 0
-            self.write_delay_per_weight = 0
-            self.read_per_kernel = 0
-            self.write_per_kernel = 0
-            self.shift_power_per_kernel = 0
-            self.delay_per_kernel = 0
-            
-            self.total_delay = 0
-            self.total_power = 0 
-            self.total_area = 0
-        
+
 
 
     def read_power(self):

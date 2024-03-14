@@ -11,17 +11,16 @@ class Network():
             self.padding = int(config["NetworkConfig"]["padding"])
             self.kernel_size = self.kernel_height * self.kernel_width
             self.total_weights = self.kernel_size * self.kernel_number #total number of weights
-            self.hedden_node = 0
+            # self.hedden_node = 0
         else:
             self.hedden_node = int(config["NetworkConfig"]["hedden_node"])
             self.total_weights = int(config["HardwareConfig"]["pixel_array_width"]) * int(config["HardwareConfig"]["pixel_array_height"]) * self.hedden_node
-            self.kernel_number = 0
-            self.kernel_width = 0
-            self.kernel_height = 0
-            self.stride = 0
-            self.padding = 0
-            self.kernel_size = 0
-
+            # self.kernel_number = 0
+            # self.kernel_width = 0
+            # self.kernel_height = 0
+            # self.stride = 0
+            # self.padding = 0
+            # self.kernel_size = 0
     def calculate_output_height(self,pixel_array_height):
     # Calculate the output size for one dimension
         if self.network_type == "CNN":

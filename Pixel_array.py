@@ -27,6 +27,9 @@ class PixelArray(Component.Component):
         self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * self.outfmap
         self.total_delay_in_sensing = self.delay + self.delay_pixels() * math.ceil(self.height/float(self.box_size))
 
+        # self.kernel_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * self.outfmap
+        self.row_delay_in_sensing = self.delay + self.delay_pixels()
+
         self.total_delay = max(self.total_delay_in_compute, self.total_delay_in_sensing)
         self.total_area = self.area + self.area_pixel_compute_addon() + self.area_pixels()
 
