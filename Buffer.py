@@ -11,21 +11,20 @@ class Buffer(Component.Component):
             self._weight_precision = int(config["HardwareConfig"]["weight_precision"])
             self.bus_size = int(config[name]["bus_size"])
             self._kernel_size = self._network.kernel_size
-            self.bus_size = int(config[name]["bus_size"])
             self.memory_bit_size = self._weight_precision * self._kernel_size 
             self.memory_size = self.convert_size(self.memory_bit_size)
             self.read_power_per_weight = self._buffer_cell.read_power * self._weight_precision
             self.write_power_per_weight = self._buffer_cell.write_power * self._weight_precision
-            self.read_delay_per_weight = self._buffer_cell.read_delay  #TODO: check it with others
-            self.write_delay_per_weight = self._buffer_cell.write_delay  #TODO: check it with others
+            self.read_delay_per_weight = self._buffer_cell.read_delay  
+            self.write_delay_per_weight = self._buffer_cell.write_delay 
             self.number_of_weight_read_per_clock = self.bus_size/self._weight_precision
 
             self.read_per_kernel = self.read_power()
             self.write_per_kernel = self.write_power()
             self.shift_power_per_kernel = self.shift_power()
             self.delay_per_kernel = self._buffer_cell.read_delay 
-            self.total_delay = self.delay + self._buffer_cell.total_delay       #TODO: check with others
-            self.total_power = self.power + (self._buffer_cell.total_power * self.memory_bit_size) #static power of memory #TODO: check with others
+            self.total_delay = self.delay + self._buffer_cell.total_delay       
+            self.total_power = self.power + (self._buffer_cell.total_power * self.memory_bit_size) #static power of memory 
             self.total_area = self.area + (self.memory_bit_size * self._buffer_cell.total_area)
 
 

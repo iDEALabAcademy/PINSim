@@ -15,13 +15,13 @@ class Global(Component.Component):
         
         self.read_power_per_weight = self._global_cell.read_power * self._weight_precision
         self.write_power_per_weight = self._global_cell.write_power * self._weight_precision
-        self.read_delay_per_weight = self._global_cell.read_delay #TODO: check it with others
-        self.write_delay_per_weight = self._global_cell.write_delay  #TODO: check it with others   
+        self.read_delay_per_weight = self._global_cell.read_delay
+        self.write_delay_per_weight = self._global_cell.write_delay  
                 
         if self._network.network_type == "CNN":
             self.memory_bit_size = self._weight_precision * self._network.kernel_size * self._network.kernel_number
         else: #MLP
-            self.memory_bit_size = self._weight_precision * self._network.hedden_node * self._pixel_height * self._pixel_width
+            self.memory_bit_size = self._weight_precision * self._network.hidden_node * self._pixel_height * self._pixel_width
             
         #All of them are per weight
         self.total_delay = self.delay + self._global_cell.total_delay       

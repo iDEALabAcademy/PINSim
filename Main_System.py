@@ -21,7 +21,7 @@ class Main_System(Component.Component):
         if self._network.network_type == "CNN":
             #Create the Buffer memory
             self._buffer_memory = Buffer.Buffer("Buffer", "buffer_model", config)
-            
+        #TODO: add controller here
 
 
         #parameters: 
@@ -30,6 +30,7 @@ class Main_System(Component.Component):
 
         
         if self.weight_precision > self._global_memory.bus_size or (self._network.network_type == "CNN" and self.weight_precision > self._buffer_memory.bus_size):
+            #TODO: raise an error
             print( "The bus size should be greater than weight precision")
             
         #power:
@@ -42,8 +43,8 @@ class Main_System(Component.Component):
         self.adc_power = self._adc_array.total_power
         
         if self._network.network_type == "CNN":
-            self.buffer_memory_write_power = self._buffer_memory.write_power_per_weight * self._network.total_weights
-            self.buffer_memory_read_power = self._network.calculate_output_height(self._pixel_array.height) * self._buffer_memory.read_power_per_weight * self._network.total_weights
+            # self.buffer_memory_write_power = self._buffer_memory.write_power_per_weight * self._network.total_weights
+            # self.buffer_memory_read_power = self._network.calculate_output_height(self._pixel_array.height) * self._buffer_memory.read_power_per_weight * self._network.total_weights
             self.total_power = self.pixel_array_power + self.adc_power + self.global_memory_write_power +  self.global_memory_read_power + self._global_memory.total_power + self.buffer_memory_write_power + self.buffer_memory_read_power + self._buffer_memory.total_power
         else:
             self.total_power = self.pixel_array_power + self.adc_power + self.global_memory_write_power +  self.global_memory_read_power + self._global_memory.total_power
@@ -58,7 +59,7 @@ class Main_System(Component.Component):
         if self._network.network_type == "CNN":
             self.compute_adc_array_delay = (self._adc_array.total_delay_in_compute * self._network.calculate_output_height(self._pixel_array.height)  * self._network.kernel_number) / self.parallelism_level
         else:
-            self.compute_adc_array_delay = self._adc_array.total_delay_in_compute * (self._network.hedden_node/self.parallelism_level)
+            self.compute_adc_array_delay = self._adc_array.total_delay_in_compute * (self._network.hidden_node/self.parallelism_level)
         #memory delays
         self.global_memory_write_delay = self._global_memory.write_delay_per_weight * self._network.total_weights
         self.global_memory_read_delay = self._global_memory.read_delay_per_weight * self._network.total_weights
@@ -70,7 +71,7 @@ class Main_System(Component.Component):
         #system delay
         self.sensing_delay = self.sensing_pixel_array_delay + self.sensing_adc_array_delay
         if self._network.network_type == "CNN":
-            self.computing_delay = self.compute_pixel_array_delay + self.compute_adc_array_delay + self.global_memory_read_delay + self.buffer_memory_write_delay + self.buffer_memory_read_delay
+            self.computing_delay = self.compute_pixel_array_delay + self.compute_adc_array_delay + self.global_memory_read_delay + self.buffer_memory_write_delay + self.buffer_memory_read_delay #TODO: we can add global write here
         else:
             self.computing_delay = self.compute_pixel_array_delay + self.compute_adc_array_delay + self.global_memory_read_delay
         self.total_delay = max(self.sensing_delay,  self.computing_delay)

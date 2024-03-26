@@ -7,6 +7,8 @@ class AdcArray(Component.Component):
         super().__init__(name, model, config, sub_component)
         self._adc = Component.Component("Adc", "adc_model", config)# one ADC model
         self._cp_adc = Component.Component("AdcComputeAddon", "adc_cp_model", config)# one compute addon in ADC model
+        # TODO: the network config should add to this code (remove ADC_number)
+        self._parallelism_level = int(config["HardwareConfig"]["parallelism_level"])
         self.total_adcs_in_compute = int(config["HardwareConfig"]["adc_number"]) * int(config["HardwareConfig"]["parallelism_level"]) #in compute mode
         self.total_adcs_in_sensing = math.ceil(int(config["HardwareConfig"]["adc_number"]) / float(config["HardwareConfig"]["box_size"])) #in sensing mode
         self.is_cp_in_adc = int(config["HardwareConfig"]["cp_in_adc"])  #check location of compute addons
@@ -35,7 +37,7 @@ class AdcArray(Component.Component):
         return max(self.total_adcs_in_compute, self.total_adcs_in_sensing) * self._adc.get_area() #reuse ADC in sensing and computing
 
     def power_adc_compute_addon(self):
-        return self.is_cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_power() * self.cp_per_adc
+        return self.is_cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_power() * self.cp_per_adc * self._parallelism_level
 
     def delay_adc_compute_addon(self):
         return self.is_cp_in_adc * self._cp_adc.get_delay()
