@@ -1,27 +1,23 @@
 import Component
 import Global_cell
-import Network
+from Network import Network
+from Config import Config
+from Hardware import Hardware
 class Global(Component.Component):
-    def __init__(self, name, model, config, sub_component=None):
-        super().__init__(name, model, config, sub_component)
-        self._global_cell = Global_cell.GlobalCell("GlobalCell", "global_model", config)  # one buffer cell
-        self.bus_size = int(config[name]["bus_size"])
-        self._weight_precision = int(config["HardwareConfig"]["weight_precision"])
-        self._cp_percentage = float(config["HardwareConfig"]["cp_percentage"])
-        self._pixel_width = int(config["HardwareConfig"]["pixel_array_width"])
-        self._pixel_height = int(config["HardwareConfig"]["pixel_array_height"])
-
-        self._network = Network.Network(config)
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self._global_cell = Global_cell.GlobalCell("GlobalCell", "global_model")  # one buffer cell
+        self.bus_size = int(Config.config[name]["bus_size"])
         
-        self.read_power_per_weight = self._global_cell.read_power * self._weight_precision
-        self.write_power_per_weight = self._global_cell.write_power * self._weight_precision
+        self.read_power_per_weight = self._global_cell.read_power * Hardware.weight_precision
+        self.write_power_per_weight = self._global_cell.write_power * Hardware.weight_precision
         self.read_delay_per_weight = self._global_cell.read_delay
         self.write_delay_per_weight = self._global_cell.write_delay  
                 
-        if self._network.network_type == "CNN":
-            self.memory_bit_size = self._weight_precision * self._network.kernel_size * self._network.kernel_number
+        if Network.type == "CNN":
+            self.memory_bit_size = Hardware.weight_precision * Network.kernel_size * Network.kernel_number
         else: #MLP
-            self.memory_bit_size = self._weight_precision * self._network.hidden_node * self._pixel_height * self._pixel_width
+            self.memory_bit_size = Hardware.weight_precision * Network.hidden_node * Hardware.pixel_array_height * Hardware.pixel_array_width
             
         #All of them are per weight
         self.total_delay = self.delay + self._global_cell.total_delay       
@@ -30,10 +26,10 @@ class Global(Component.Component):
             
 
         self.memory_size = self.convert_size(self.memory_bit_size)
-        self.number_of_weight_read_per_clock = self.bus_size/self._weight_precision
+        self.number_of_weight_read_per_clock = self.bus_size/Hardware.weight_precision
         
     def read_power(self):
-        return self._network.kernel_size * self.read_power_per_weight 
+        return Network.kernel_size * self.read_power_per_weight 
     
      
     def convert_size(self,size_in_bits):

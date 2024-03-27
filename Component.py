@@ -1,14 +1,13 @@
-import Sizing
+from Config import Config
+from Sizing import Sizing
 
 class Component:
-    def __init__(self, name, model, config, sub_component=None):
+    def __init__(self, name, model):
         self.name = name
-        self.model = int(config["HardwareConfig"][model])
-        self._sizing =  Sizing.Sizing(config)
-        self._sub_component = sub_component
-        self.power = self._sizing.calculate_power(float(config[name]["power"].split(',')[self.model].strip()))
-        self.delay = self._sizing.calculate_delay(float(config[name]["delay"].split(',')[self.model].strip()))
-        self.area = self._sizing.calculate_area(float(config[name]["area"].split(',')[self.model].strip()))
+        self.model = int(Config.config["HardwareConfig"][model])
+        self.power = Sizing.calculate_power(float(Config.config[name]["power"].split(',')[self.model].strip()))
+        self.delay = Sizing.calculate_delay(float(Config.config[name]["delay"].split(',')[self.model].strip()))
+        self.area = Sizing.calculate_area(float(Config.config[name]["area"].split(',')[self.model].strip()))
         self.total_power = self.power
         self.total_delay = self.delay
         self.total_area = self.area

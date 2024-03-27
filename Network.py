@@ -1,38 +1,50 @@
-class Network():
+from Config import Config
 
-    def __init__(self, config):
-        self.name = "Network"
-        self.network_type = str(config["NetworkConfig"]["network_type"])
-        if self.network_type == "CNN":
-            self.kernel_number = int(config["NetworkConfig"]["kernel_number"])
-            self.kernel_width = int(config["NetworkConfig"]["kernel_width"])
-            self.kernel_height = int(config["NetworkConfig"]["kernel_height"])
-            self.stride = int(config["NetworkConfig"]["stride"])
-            self.padding = int(config["NetworkConfig"]["padding"])
-            self.kernel_size = self.kernel_height * self.kernel_width
-            self.total_weights = self.kernel_size * self.kernel_number #total number of weights
-            # self.hedden_node = 0
+class Network:
+    _config = Config.config
+    name = "Network"
+    type = str(_config["NetworkConfig"]["type"])
+
+    @classmethod
+    def _load_cnn_config(self):
+        self.kernel_number = int(self._config["NetworkConfig"]["kernel_number"])
+        self.kernel_width = int(self._config["NetworkConfig"]["kernel_width"])
+        self.kernel_height = int(self._config["NetworkConfig"]["kernel_height"])
+        self.stride = int(self._config["NetworkConfig"]["stride"])
+        self.padding = int(self._config["NetworkConfig"]["padding"])
+        self.kernel_size = self.kernel_height * self.kernel_width
+        self.total_weights = self.kernel_size * self.kernel_number
+
+    @classmethod
+    def _load_other_config(self):
+        self.hidden_node = int(self._config["NetworkConfig"]["hidden_node"])
+        self.total_weights = int(self._config["HardwareConfig"]["pixel_array_width"]) * int(self._config["HardwareConfig"]["pixel_array_height"]) * self.hidden_node
+
+    @classmethod
+    def initialize(self):
+        if self.type == "CNN":
+            self._load_cnn_config()
         else:
-            self.hidden_node = int(config["NetworkConfig"]["hidden_node"])
-            self.total_weights = int(config["HardwareConfig"]["pixel_array_width"]) * int(config["HardwareConfig"]["pixel_array_height"]) * self.hidden_node
-            # self.kernel_number = 0
-            # self.kernel_width = 0
-            # self.kernel_height = 0
-            # self.stride = 0
-            # self.padding = 0
-            # self.kernel_size = 0
-    def calculate_output_height(self,pixel_array_height):
-    # Calculate the output size for one dimension
-        if self.network_type == "CNN":
+            self._load_other_config()
+
+    @classmethod
+    def calculate_output_height(self, pixel_array_height):
+        if self.type == "CNN":
             return ((pixel_array_height - self.kernel_height + (2 * self.padding)) // self.stride) + 1
         else:
             return self.hidden_node
 
-    def print_detail(self, tab = ""):
+    @classmethod
+    def print_detail(self, tab=""):
         tab += "\t"
         result = ""
-        result += ('****************************\n')
-        for attr, value in self.__dict__.items():
-            if not attr.startswith('_'):
-                 result += tab + f"{attr} = {value}\n"
+        result += '****************************\n'
+        attrs = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("_")]
+        for attr in attrs:
+            value = getattr(self, attr)
+            result += tab + f"{attr} = {value}\n"
         return result
+
+# # To use this 'static' class, you first initialize it with configuration.
+# Network.initialize()
+

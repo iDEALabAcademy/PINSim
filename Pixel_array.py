@@ -2,22 +2,24 @@ import Component
 import Network
 import math
 import Sizing
+from Hardware import Hardware
+from Network import Network
+
 class PixelArray(Component.Component):
 
-    def __init__(self, name, model, config, sub_component=None):
-        super().__init__(name, model, config, sub_component)
-        self._pixel = Component.Component("Pixel", "pixel_model", config)# one _pixel model
-        self._sizing = Sizing.Sizing(config) 
-        self._cp_pixel = Component.Component("PixelComputeAddon", "pixel_cp_model", config)# one compute addon model for in _pixel
-        self.width = int(config["HardwareConfig"]["pixel_array_width"])
-        self.height = int(config["HardwareConfig"]["pixel_array_height"])
-        self.is_cp_in_pixel = int(config["HardwareConfig"]["cp_in_pixel"])
-        self.cp_per_pixel = int(config["HardwareConfig"]["cp_per_pixel"])
-        self._cp_percentage = float(config["HardwareConfig"]["cp_percentage"])
-        self.box_size = int(config["HardwareConfig"]["box_size"])
-        network = Network.Network(config)
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self._pixel = Component.Component("Pixel", "pixel_model")# one _pixel model
+        self._sizing = Sizing.Sizing() 
+        self._cp_pixel = Component.Component("PixelComputeAddon", "pixel_cp_model")# one compute addon model for in _pixel
+        self.width = Hardware.pixel_array_width
+        self.height = Hardware.pixel_array_height
+        self.is_cp_in_pixel = Hardware.cp_in_pixel
+        self.cp_per_pixel =Hardware.cp_per_pixel
+        self._cp_percentage = Hardware.cp_percentage
+        self.box_size = Hardware.box_size
 
-        self.outfmap = network.calculate_output_height(self.height)
+        self.outfmap = Network.calculate_output_height(self.height)
         self.total_pixels = self.width * self.height
         self.active_pixels = math.ceil(self.width/float(self.box_size)) * math.ceil(self.height/float(self.box_size))
         self.total_power_in_compute = self.power + self.power_pixel_compute_addon() + self.power_pixels()

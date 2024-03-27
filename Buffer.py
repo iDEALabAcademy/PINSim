@@ -1,16 +1,16 @@
 import Component
 import Buffer_cell
-import Network
+from Network import Network
+from Config import Config
 #TODO: there is two option for Buffer, one with read circuit and second based on shift we need to impliment it.
 class Buffer(Component.Component):
-    def __init__(self, name, model, config, sub_component=None):
-        super().__init__(name, model, config, sub_component)
-        self._buffer_cell = Buffer_cell.BufferCell("BufferCell", "buffer_model", config)  # one buffer cell
-        self._network = Network.Network(config)
-        if self._network.network_type == "CNN":
-            self._weight_precision = int(config["HardwareConfig"]["weight_precision"])
-            self.bus_size = int(config[name]["bus_size"])
-            self._kernel_size = self._network.kernel_size
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self._buffer_cell = Buffer_cell.BufferCell("BufferCell", "buffer_model")  # one buffer cell
+        if Network.type == "CNN":
+            self._weight_precision = int(Config.config["HardwareConfig"]["weight_precision"])
+            self.bus_size = int(Config.config[name]["bus_size"])
+            self._kernel_size = Network.kernel_size
             self.memory_bit_size = self._weight_precision * self._kernel_size 
             self.memory_size = self.convert_size(self.memory_bit_size)
             self.read_power_per_weight = self._buffer_cell.read_power * self._weight_precision

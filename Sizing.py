@@ -1,15 +1,16 @@
+from Hardware import Hardware
 class Sizing:
-    def __init__(self, config):
-        self.technology_size = int(config["HardwareConfig"]["technology_size"])
+    technology_size = Hardware.technology_size
 
-    def calculate_power(self,power):
+    @classmethod
+    def calculate_power(self, power):
         # todo: impliment the formulla
-        return power
-
+        return power *(self.technology_size/self.technology_size)
+    @classmethod
     def calculate_area(self, area):
         # todo: impliment the formulla
         return area
-
+    @classmethod
     def calculate_delay(self, delay):
         # todo: impliment the formulla
         return delay

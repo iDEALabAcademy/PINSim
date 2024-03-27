@@ -1,19 +1,27 @@
 import Component
+from Network import Network 
 import math
-
+from Hardware import Hardware
 class AdcArray(Component.Component):
 
-    def __init__(self, name, model, config, sub_component=None):
-        super().__init__(name, model, config, sub_component)
-        self._adc = Component.Component("Adc", "adc_model", config)# one ADC model
-        self._cp_adc = Component.Component("AdcComputeAddon", "adc_cp_model", config)# one compute addon in ADC model
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self._adc = Component.Component("Adc", "adc_model")# one ADC model
+
+        self._cp_adc = Component.Component("AdcComputeAddon", "adc_cp_model")# one compute addon in ADC model
         # TODO: the network config should add to this code (remove ADC_number)
-        self._parallelism_level = int(config["HardwareConfig"]["parallelism_level"])
-        self.total_adcs_in_compute = int(config["HardwareConfig"]["adc_number"]) * int(config["HardwareConfig"]["parallelism_level"]) #in compute mode
-        self.total_adcs_in_sensing = math.ceil(int(config["HardwareConfig"]["adc_number"]) / float(config["HardwareConfig"]["box_size"])) #in sensing mode
-        self.is_cp_in_adc = int(config["HardwareConfig"]["cp_in_adc"])  #check location of compute addons
-        self.cp_per_adc = int(config["HardwareConfig"]["cp_per_adc"])   #numbe of compute addons per each ADC
-        self._cp_percentage = float(config["HardwareConfig"]["cp_percentage"])
+        self._parallelism_level = Hardware.parallelism_level
+
+        if Network.type == "CNN":
+            self.total_adcs_in_compute = math.ceil(Hardware.adc_number / Network.kernel_width) * Hardware.parallelism_level #in compute mode with CNN
+        else:
+            self.total_adcs_in_compute = Hardware.parallelism_level #In MLP minimum ADC for reading the result of whole focal plane is 1
+            
+        self.total_adcs_in_sensing = math.ceil(Hardware.adc_number // Hardware.box_size) #in sensing mode
+        self.total_adcs_in_normal =  Hardware.adc_number #in normal mode
+        self.is_cp_in_adc = Hardware.cp_in_adc  #check location of compute addons
+        self.cp_per_adc = Hardware.cp_per_adc  #numbe of compute addons per each ADC
+        self._cp_percentage = Hardware.cp_percentage
 
 
         self.total_power_in_compute = self.power + self.power_adcs(self.total_adcs_in_compute) + self.power_adc_compute_addon()
