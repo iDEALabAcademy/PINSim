@@ -18,15 +18,23 @@ class Global(Component.Component):
             self.memory_bit_size = Hardware.weight_precision * Network.kernel_size * Network.kernel_number
         else: #MLP
             self.memory_bit_size = Hardware.weight_precision * Network.hidden_node * Hardware.pixel_array_height * Hardware.pixel_array_width
-            
+
+        self.memory_size = self.convert_size(self.memory_bit_size)
+        self.number_of_weight_read_per_clock = self.number_of_weight_write_per_clock = self.bus_size/Hardware.weight_precision
+        
+        self.total_read_power = self.read_power_per_weight * Network.total_weights
+        self.total_write_power = self.write_power_per_weight * Network.total_weights
+
+        self.total_write_delay = Network.total_weights // self.number_of_weight_write_per_clock
+        self.total_read_delay = Network.total_weights // self.number_of_weight_read_per_clock
+        
         #All of them are per weight
         self.total_delay = self.delay + self._global_cell.total_delay       
         self.total_power = self.power + (self._global_cell.total_power * self.memory_bit_size) #static power of memory
         self.total_area = self.area + (self.memory_bit_size * self._global_cell.total_area)
             
 
-        self.memory_size = self.convert_size(self.memory_bit_size)
-        self.number_of_weight_read_per_clock = self.bus_size/Hardware.weight_precision
+
         
     def read_power(self):
         return Network.kernel_size * self.read_power_per_weight 

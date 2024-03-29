@@ -1,4 +1,5 @@
 from Config import Config
+from Hardware import Hardware
 
 class Network:
     _config = Config.config
@@ -14,11 +15,14 @@ class Network:
         self.padding = int(self._config["NetworkConfig"]["padding"])
         self.kernel_size = self.kernel_height * self.kernel_width
         self.total_weights = self.kernel_size * self.kernel_number
+        self.output_feature_map_width = self.calculate_output_height(Hardware.pixel_array_width)
+        self.output_feature_map_height = self.calculate_output_height(Hardware.pixel_array_height)
+        self.output_feature_map_size = self.output_feature_map_height * self.output_feature_map_width
 
     @classmethod
     def _load_other_config(self):
         self.hidden_node = int(self._config["NetworkConfig"]["hidden_node"])
-        self.total_weights = int(self._config["HardwareConfig"]["pixel_array_width"]) * int(self._config["HardwareConfig"]["pixel_array_height"]) * self.hidden_node
+        self.total_weights = int(Hardware.pixel_array_width) * int(Hardware.pixel_array_height) * self.hidden_node
 
     @classmethod
     def initialize(self):

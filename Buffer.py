@@ -1,6 +1,7 @@
 import Component
 import Buffer_cell
 from Network import Network
+from Hardware import Hardware
 from Config import Config
 #TODO: there is two option for Buffer, one with read circuit and second based on shift we need to impliment it.
 class Buffer(Component.Component):
@@ -8,7 +9,7 @@ class Buffer(Component.Component):
         super().__init__(name, model)
         self._buffer_cell = Buffer_cell.BufferCell("BufferCell", "buffer_model")  # one buffer cell
         if Network.type == "CNN":
-            self._weight_precision = int(Config.config["HardwareConfig"]["weight_precision"])
+            self._weight_precision = Hardware.weight_precision
             self.bus_size = int(Config.config[name]["bus_size"])
             self._kernel_size = Network.kernel_size
             self.memory_bit_size = self._weight_precision * self._kernel_size 
@@ -22,12 +23,30 @@ class Buffer(Component.Component):
             self.read_per_kernel = self.read_power()
             self.write_per_kernel = self.write_power()
             self.shift_power_per_kernel = self.shift_power()
+
+            self.total_write_power = self.write_power_per_weight * Network.total_weights
+            self.total_read_power = Network.calculate_output_height(Hardware.pixel_array_height) * self.read_power_per_weight * (Network.kernel_width - Network.stride + 1)
+
+            self.total_write_delay = Network.total_weights // self.number_of_weight_read_per_clock
+            self.total_read_delay = Network.calculate_output_height(Hardware.pixel_array_height) * self.read_delay_per_weight
             self.delay_per_kernel = self._buffer_cell.read_delay 
             self.total_delay = self.delay + self._buffer_cell.total_delay       
             self.total_power = self.power + (self._buffer_cell.total_power * self.memory_bit_size) #static power of memory 
             self.total_area = self.area + (self.memory_bit_size * self._buffer_cell.total_area)
+        else:
+            self.read_power_per_weight = 0
+            self.write_power_per_weight = 0
+            self.read_delay_per_weight = 0
+            self.write_delay_per_weight = 0
+            
+            self.total_write_power = 0
+            self.total_read_power = 0
 
-
+            self.total_write_delay = 0
+            self.total_read_delay = 0
+            self.total_delay = 0
+            self.total_power = 0
+            self.total_area = 0
 
     def read_power(self):
         return self._kernel_size * self.read_power_per_weight
