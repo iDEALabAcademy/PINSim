@@ -1,30 +1,43 @@
 import Component
 import Global_cell
-import Network
+from Network import Network
+from Config import Config
+from Hardware import Hardware
 class Global(Component.Component):
-    def __init__(self, name, model, config, sub_component=None):
-        super().__init__(name, model, config, sub_component)
-        self._global_cell = Global_cell.GlobalCell("GlobalCell", "global_model", config)  # one buffer cell
-        self._weight_precision = int(config["HardwareConfig"]["weight_precision"])
-        self.bus_size = int(config[name]["bus_size"])
-        self._cp_percentage = float(config["HardwareConfig"]["cp_percentage"])
+    def __init__(self, name, model):
+        super().__init__(name, model)
+        self._global_cell = Global_cell.GlobalCell("GlobalCell", "global_model")  # one buffer cell
+        self.bus_size = int(Config.config[name]["bus_size"])
+        
+        self.read_power_per_weight = self._global_cell.read_power * Hardware.weight_precision
+        self.write_power_per_weight = self._global_cell.write_power * Hardware.weight_precision
+        self.read_delay_per_weight = self._global_cell.read_delay
+        self.write_delay_per_weight = self._global_cell.write_delay  
+                
+        if Network.type == "CNN":
+            self.memory_bit_size = Hardware.weight_precision * Network.kernel_size * Network.kernel_number
+        else: #MLP
+            self.memory_bit_size = Hardware.weight_precision * Network.hidden_node * Hardware.pixel_array_height * Hardware.pixel_array_width
 
-        self._network = Network.Network(config)
-        self.memory_bit_size = self._weight_precision * self._network.kernel_size * self._network.kernel_number
         self.memory_size = self.convert_size(self.memory_bit_size)
-        self.read_power_per_weight = self._global_cell.read_power * self._weight_precision
-        self.write_power_per_weight = self._global_cell.write_power * self._weight_precision
-        self.read_delay_per_weight = self._global_cell.read_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
-        self.write_delay_per_weight = self._global_cell.write_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
-        self.read_per_kernel = self.read_power()
-        self.delay_per_kernel = self._global_cell.read_delay * (self.bus_size/self._weight_precision) #TODO: check it with others
+        self.number_of_weight_read_per_clock = self.number_of_weight_write_per_clock = self.bus_size/Hardware.weight_precision
+        
+        self.total_read_power = self.read_power_per_weight * Network.total_weights
+        self.total_write_power = self.write_power_per_weight * Network.total_weights
 
-        self.total_delay = self.delay + self.delay_per_kernel
-        self.total_power = self.power + self._network.kernel_size * self.read_power_per_weight #power for reading each kernel
+        self.total_write_delay = Network.total_weights // self.number_of_weight_write_per_clock
+        self.total_read_delay = Network.total_weights // self.number_of_weight_read_per_clock
+        
+        #All of them are per weight
+        self.total_delay = self.delay + self._global_cell.total_delay       
+        self.total_power = self.power + (self._global_cell.total_power * self.memory_bit_size) #static power of memory
         self.total_area = self.area + (self.memory_bit_size * self._global_cell.total_area)
+            
 
+
+        
     def read_power(self):
-        return self._network.kernel_size * self.read_power_per_weight 
+        return Network.kernel_size * self.read_power_per_weight 
     
      
     def convert_size(self,size_in_bits):

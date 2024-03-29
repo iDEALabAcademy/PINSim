@@ -1,76 +1,51 @@
-import Component
+from Component import Component
 import Adc_array
 import Pixel_array
 import Global
 import Buffer
-import Network
+from Controller import Controller
+from Network import Network
+from Hardware import Hardware
 import math
 
-class Main_System(Component.Component):
+class Main_System(Component):
 
-    def __init__(self, name, model, config, sub_component=None):
-        super().__init__(name, model, config, sub_component)
-        #Create the pixel array
-        self._pixel_array = Pixel_array.PixelArray("PixelArray", "pixel_array_model", config)
-        #create the readout
-        self._adc_array = Adc_array.AdcArray("AdcArray", "adc_array_model", config)
-        #Create the Global memory
-        self._global_memory = Global.Global("Global", "global_model", config)
-        #Create the Buffer memory
-        self._buffer_memory = Buffer.Buffer("Buffer", "buffer_model", config)
+    def __init__(self, name, model):
+        super().__init__(name, model)
         #Create the network
-        self._network = Network.Network(config)
+        Network.initialize()
+        #Create the pixel array
+        self._pixel_array = Pixel_array.PixelArray("PixelArray", "pixel_array_model")
+        #create the readout
+        self._adc_array = Adc_array.AdcArray("AdcArray", "adc_array_model")
+        #Create the Global memory
+        self._global_memory = Global.Global("Global", "global_model")
 
-        #parameters: 
-        self.parallelism_level = int(config["HardwareConfig"]["parallelism_level"])
-        self.weight_precision = int(config["HardwareConfig"]["weight_precision"])
+        self._buffer_memory = Buffer.Buffer("Buffer", "buffer_model") #in MLP all the parameters are zero
+        #TODO: add controller here
+        self._controller = Controller("ControlUnit", "decoder_model")
 
-        
-        if self.weight_precision > self._global_memory.bus_size or self.weight_precision > self._buffer_memory.bus_size:
-            print( "The bus size should be greater than weight precision")
-        #power:
-        self.global_memory_write_power = self._global_memory.write_power_per_weight * self._network.total_weights
-        self.global_memory_read_power = self._global_memory.read_power_per_weight * self._network.total_weights
-        self.buffer_memory_write_power = self._buffer_memory.write_power_per_weight * self._network.total_weights
-        self.buffer_memory_read_power = self._network.calculate_output_height(self._pixel_array.height) * self._buffer_memory.read_power_per_weight * self._network.total_weights
+        if Hardware.weight_precision > self._global_memory.bus_size or (Network.type == "CNN" and Hardware.weight_precision > self._buffer_memory.bus_size):
+            raise ValueError( "The bus size should be greater than weight precision")
 
         #delay
-        #pixel array
-        self.sensing_pixel_array_delay = self._pixel_array.total_delay_in_sensing
-        self.compute_pixel_array_delay = self._pixel_array.total_delay_in_compute
-        #ADC array for whole network
-        self.sensing_adc_array_delay = self._adc_array.total_delay_in_sensing * self._pixel_array.height
-        self.compute_adc_array_delay = (self._adc_array.total_delay_in_compute *  self._network.calculate_output_height(self._pixel_array.height)  * self._network.kernel_number) / self.parallelism_level
-        #memory delays
-        self.global_memory_write_delay = self._global_memory.write_delay_per_weight * self._network.total_weights
-        self.global_memory_read_delay = self._global_memory.read_delay_per_weight * self._network.total_weights
-        self.buffer_memory_write_delay = self._global_memory.write_delay_per_weight * self._network.total_weights
-        self.buffer_memory_read_delay = self._global_memory.read_delay_per_weight * self._network.total_weights * self._network.calculate_output_height(self._pixel_array.height)
+        self.total_normal_delay = self._pixel_array.total_delay_in_normal + self._adc_array.total_delay_in_normal
+        self.total_sensing_delay = self._pixel_array.total_delay_in_sensing + self._adc_array.total_delay_in_sensing
+        self.computing_delay = self._pixel_array.total_delay_in_compute  + self._adc_array.total_delay_in_compute + self._global_memory.total_read_delay + self._buffer_memory.total_write_delay + self._buffer_memory.total_read_delay #TODO: we can add global write here
+        self.total_delay = max(self.total_normal_delay, self.total_sensing_delay,  self.computing_delay)
 
-        #system delay
-        self.sensing_delay = self.sensing_pixel_array_delay + self.sensing_adc_array_delay
-        self.computing_delay = self.compute_pixel_array_delay + self.compute_adc_array_delay + self.global_memory_read_delay + self.buffer_memory_write_delay + self.buffer_memory_read_delay
-        
+        #power
+        self.total_power = self._pixel_array.total_power + self._adc_array.total_power + self._global_memory.total_write_power +  self._global_memory.total_read_power + self._global_memory.total_power + self._buffer_memory.total_write_power + self._buffer_memory.total_read_power + self._buffer_memory.total_power
+
         #system area
-        self.total_area = self.area + self._adc_array.total_area + self._adc_array.total_area + self._global_memory.total_area + self._buffer_memory.total_area
+        self.total_area = self.area + self._pixel_array.total_area + self._adc_array.total_area + self._global_memory.total_area + self._buffer_memory.total_area
 
-    # def total_write_in_global(self):
-    #     return self._global_memory.write_power_per_weight * self._network.total_weights
-    
-    # def total_read_in_global(self):
-    #     return self._global_memory.read_power_per_weight * self._network.total_weights
-    
-    # def total_write_in_buffer(self):
-    #     return self._buffer_memory.write_power_per_weight * self._network.total_weights
-    
-    # def total_read_in_buffer(self):
-    #     return self._network.calculate_output_height(self._pixel_array.height) * self._buffer_memory.read_power_per_weight * self._network.total_weights
 
-    # def total_sensing_delay(self):
-    #     return self.sensing_pixel_array_delay + self.sensing_adc_array_delay
-
-    # def total_compute_delay(self):
-    #     pass
+        #Framrate:
+        self.FPS_normal = 1/self.total_normal_delay
+        self.FPS_sensing = 1/self.total_sensing_delay
+        self.FPS_computing = 1/self.computing_delay
+        #TODO: Add TOpS
 
     def print_detail(self, tab = ""):
         result = ""
@@ -79,6 +54,8 @@ class Main_System(Component.Component):
         result += self._pixel_array.print_detail(tab)
         result += self._adc_array.print_detail(tab)
         result += self._global_memory.print_detail(tab)
-        result += self._buffer_memory.print_detail(tab)
-        result += self._network.print_detail(tab)
+        result += self._controller.print_detail(tab)
+        if Network.type == "CNN":
+            result += self._buffer_memory.print_detail(tab)
+        result += Network.print_detail(tab)
         return result
