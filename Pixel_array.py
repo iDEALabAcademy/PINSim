@@ -25,7 +25,7 @@ class PixelArray(Component.Component):
         self.total_delay_in_sensing = self.delay + self.delay_pixels() * math.ceil(Hardware.pixel_array_height/float(Hardware.box_size))
         if Network.type == "CNN":
             # TODO check with @arman
-            self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * (self.outfmap_height * (Network.kernel_width - Network.stride + 1) * Network.kernel_number // Hardware.parallelism_level)
+            self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * (self.outfmap_height * (Network.kernel_width - Network.stride + 1) * Network.kernel_number / Hardware.parallelism_level)
         else:
             self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * self.outfmap_height // Hardware.parallelism_level
 
