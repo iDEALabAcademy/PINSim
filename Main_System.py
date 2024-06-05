@@ -29,16 +29,18 @@ class Main_System(Component):
             raise ValueError( "The bus size should be greater than weight precision")
 
         #delay
-        self.total_normal_delay = self._pixel_array.total_delay_in_normal + self._adc_array.total_delay_in_normal
-        self.total_sensing_delay = self._pixel_array.total_delay_in_sensing + self._adc_array.total_delay_in_sensing
-        self.computing_delay = self._pixel_array.total_delay_in_compute  + self._adc_array.total_delay_in_compute + self._global_memory.total_read_delay + self._buffer_memory.total_write_delay + self._buffer_memory.total_read_delay #TODO: we can add global write here
-        self.total_delay = max(self.total_normal_delay, self.total_sensing_delay,  self.computing_delay)
+        self.total_normal_delay = self._pixel_array.total_delay_in_normal + self._adc_array.total_delay_in_normal + self._controller.total_delay_in_normal
+        self.total_sensing_delay = self._pixel_array.total_delay_in_sensing + self._adc_array.total_delay_in_sensing + self._controller.total_delay_in_sensing
+        #add clock to the delay
+        self.computing_delay = self._pixel_array.total_delay_in_compute  + self._adc_array.total_delay_in_compute + self._global_memory.total_read_delay + self._buffer_memory.total_write_delay + self._buffer_memory.total_read_delay + self._controller.total_delay_in_compute 
+        self.total_delay = self.delay + max(self.total_normal_delay, self.total_sensing_delay,  self.computing_delay)
 
         #power
-        self.total_power = self._pixel_array.total_power + self._adc_array.total_power + self._global_memory.total_write_power +  self._global_memory.total_read_power + self._global_memory.total_power + self._buffer_memory.total_write_power + self._buffer_memory.total_read_power + self._buffer_memory.total_power
+        #memories buffer should multiply by persentage
+        self.total_power = self.power + self._pixel_array.total_power + self._adc_array.total_power + self._global_memory.total_read_power + self._global_memory.total_power + self._buffer_memory.total_write_power + self._buffer_memory.total_read_power + self._buffer_memory.total_power + self._controller.total_power
 
         #system area
-        self.total_area = self.area + self._pixel_array.total_area + self._adc_array.total_area + self._global_memory.total_area + self._buffer_memory.total_area
+        self.total_area = self.area + self._pixel_array.total_area + self._adc_array.total_area + self._global_memory.total_area + self._buffer_memory.total_area + self._controller.total_area
 
 
         #Framrate:

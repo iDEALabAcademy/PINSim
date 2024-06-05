@@ -4,6 +4,7 @@ from Hardware import Hardware
 import math
 class Controller(Component):
     def __init__(self, name, model):
+        #TODO: check with others
         super().__init__(name, model)
         self._decoder = Component("Decoder", "decoder_model")  # one buffer cell
         #delay

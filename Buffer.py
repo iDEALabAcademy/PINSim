@@ -3,6 +3,7 @@ import Buffer_cell
 from Network import Network
 from Hardware import Hardware
 from Config import Config
+import math
 #TODO: there is two option for Buffer, one with read circuit and second based on shift we need to impliment it.
 class Buffer(Component.Component):
     def __init__(self, name, model):
@@ -25,10 +26,11 @@ class Buffer(Component.Component):
             self.shift_power_per_kernel = self.shift_power()
 
             self.total_write_power = self.write_power_per_weight * Network.total_weights
-            self.total_read_power = Network.calculate_output_height(Hardware.pixel_array_height) * self.read_power_per_weight * (Network.kernel_width - Network.stride + 1)
+            self.total_read_power = Network.output_feature_map_height * self.read_power_per_weight * Network.kernel_size * math.ceil(Network.output_feature_map_width/Network.kernel_width)
 
-            self.total_write_delay = Network.total_weights // self.number_of_weight_read_per_clock
-            self.total_read_delay = Network.calculate_output_height(Hardware.pixel_array_height) * self.read_delay_per_weight
+            #TODO check or change to per clock
+            self.total_write_delay = Network.total_weights / self.number_of_weight_read_per_clock
+            self.total_read_delay = Network.output_feature_map_height * self.read_delay_per_weight * math.ceil(Network.output_feature_map_width/Network.kernel_width)
             self.delay_per_kernel = self._buffer_cell.read_delay 
             self.total_delay = self.delay + self._buffer_cell.total_delay       
             self.total_power = self.power + (self._buffer_cell.total_power * self.memory_bit_size) #static power of memory 

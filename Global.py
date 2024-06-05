@@ -24,9 +24,9 @@ class Global(Component.Component):
         
         self.total_read_power = self.read_power_per_weight * Network.total_weights
         self.total_write_power = self.write_power_per_weight * Network.total_weights
-
-        self.total_write_delay = Network.total_weights // self.number_of_weight_write_per_clock
-        self.total_read_delay = Network.total_weights // self.number_of_weight_read_per_clock
+        #TODO check or change it to clock number
+        self.total_write_delay = Network.total_weights / self.number_of_weight_write_per_clock
+        self.total_read_delay = Network.total_weights / self.number_of_weight_read_per_clock
         
         #All of them are per weight
         self.total_delay = self.delay + self._global_cell.total_delay       

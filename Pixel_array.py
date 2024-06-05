@@ -17,15 +17,13 @@ class PixelArray(Component.Component):
         self.total_pixels = Hardware.pixel_array_width * Hardware.pixel_array_height
         self.active_pixels = math.ceil(Hardware.pixel_array_width/float(Hardware.box_size)) * math.ceil(Hardware.pixel_array_height/float(Hardware.box_size))
         self.total_power_in_normal = self.power + (self._pixel.get_power() * self.total_pixels) #assume all the pixels are on
-        self.total_power_in_compute = self.power + self.power_pixel_compute_addon() + self.power_pixels()
-        self.total_power_in_sensing = self.power + (self._pixel.get_power() * self.active_pixels) #assume in the sensing mode only central pixels are On.
+        self.total_power_in_compute = self.power + self.power_pixel_compute_addon() + self.power_pixels() #object detection mode
+        self.total_power_in_sensing = self.power + (self._pixel.get_power() * self.active_pixels) #assume in the sensing mode only central pixels are On. Event detection mode
         self.total_power = ((self.total_power_in_normal * Hardware.op_percentage[0]) + (self.total_power_in_sensing * Hardware.op_percentage[1]) + (self.total_power_in_compute * Hardware.op_percentage[2]))/100.0
-        # TODO: check total_delay_in_compute self.outfmap_height :done
         self.total_delay_in_normal = self.delay + self.delay_pixels() * Hardware.pixel_array_height  # read pixel values row by row 
         self.total_delay_in_sensing = self.delay + self.delay_pixels() * math.ceil(Hardware.pixel_array_height/float(Hardware.box_size))
         if Network.type == "CNN":
-            # TODO check with @arman
-            self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * (self.outfmap_height * (Network.kernel_width - Network.stride + 1) * Network.kernel_number / Hardware.parallelism_level)
+            self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * (self.outfmap_height * math.ceil(Network.output_feature_map_width/Network.kernel_width) * Network.kernel_number / Hardware.parallelism_level)
         else:
             self.total_delay_in_compute = self.delay + (self.delay_pixel_compute_addon() + self.delay_pixels()) * self.outfmap_height // Hardware.parallelism_level
 
