@@ -24,12 +24,14 @@ class Global(Component.Component):
         
         self.total_read_power = self.read_power_per_weight * Network.total_weights
         self.total_write_power = self.write_power_per_weight * Network.total_weights
-        #TODO check or change it to clock number
-        self.total_write_delay = Network.total_weights / self.number_of_weight_write_per_clock
-        self.total_read_delay = Network.total_weights / self.number_of_weight_read_per_clock
+        self.total_write_clock = Network.total_weights / self.number_of_weight_write_per_clock
+        self.total_read_clock = Network.total_weights / self.number_of_weight_read_per_clock
+        #TODO check with others
+        self.total_write_delay = self.total_write_clock * self.write_delay_per_weight
+        self.total_read_delay = self.total_read_clock * self.read_delay_per_weight
         
         #All of them are per weight
-        self.total_delay = self.delay + self._global_cell.total_delay       
+        self.total_delay = self.delay 
         self.total_power = self.power + (self._global_cell.total_power * self.memory_bit_size) #static power of memory
         self.total_area = self.area + (self.memory_bit_size * self._global_cell.total_area)
             

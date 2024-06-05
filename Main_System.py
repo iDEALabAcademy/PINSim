@@ -22,7 +22,7 @@ class Main_System(Component):
         self._global_memory = Global.Global("Global", "global_model")
 
         self._buffer_memory = Buffer.Buffer("Buffer", "buffer_model") #in MLP all the parameters are zero
-        #TODO: add controller here
+        #TODO: Check with others
         self._controller = Controller("ControlUnit", "decoder_model")
 
         if Hardware.weight_precision > self._global_memory.bus_size or (Network.type == "CNN" and Hardware.weight_precision > self._buffer_memory.bus_size):
@@ -36,8 +36,7 @@ class Main_System(Component):
         self.total_delay = self.delay + max(self.total_normal_delay, self.total_sensing_delay,  self.computing_delay)
 
         #power
-        #memories buffer should multiply by persentage
-        self.total_power = self.power + self._pixel_array.total_power + self._adc_array.total_power + self._global_memory.total_read_power + self._global_memory.total_power + self._buffer_memory.total_write_power + self._buffer_memory.total_read_power + self._buffer_memory.total_power + self._controller.total_power
+        self.total_power = self.power + self._pixel_array.total_power + self._adc_array.total_power + (Hardware.op_percentage[2]/100.0 * self._global_memory.total_read_power) + self._global_memory.total_power + (Hardware.op_percentage[2]/100.0 * self._buffer_memory.total_write_power) + (Hardware.op_percentage[2]/100.0 * self._buffer_memory.total_read_power) + self._buffer_memory.total_power + self._controller.total_power
 
         #system area
         self.total_area = self.area + self._pixel_array.total_area + self._adc_array.total_area + self._global_memory.total_area + self._buffer_memory.total_area + self._controller.total_area
