@@ -30,7 +30,6 @@ class Buffer(Component.Component):
             
             self.total_write_clock = Network.total_weights / self.number_of_weight_read_per_clock
             self.total_read_clock = Network.output_feature_map_height * math.ceil(Network.output_feature_map_width/Network.kernel_width)
-            #TODO check with others
             self.total_write_delay = self.total_write_clock * self.write_delay_per_weight 
             self.total_read_delay = self.total_read_clock * self.read_delay_per_weight 
             self.delay_per_kernel = self._buffer_cell.read_delay 

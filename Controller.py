@@ -9,7 +9,7 @@ class Controller(Component):
         self._decoder = Component("Decoder", "decoder_model")  # one buffer cell
         #delay
         self.total_delay_in_normal = self.delay + (self._decoder.total_delay * Hardware.pixel_array_height)
-        self.total_delay_in_sensing = self.delay + (self._decoder.total_delay *  math.ceil(Hardware.pixel_array_height // Hardware.box_size))
+        self.total_delay_in_sensing = self.delay + (self._decoder.total_delay *  math.ceil(Hardware.pixel_array_height / Hardware.box_size))
         
         self.total_power_in_normal = self.power + self._decoder.total_power
         self.total_power_in_sensing = self.power + self._decoder.total_power #TODO: we can use different size of decoder here 

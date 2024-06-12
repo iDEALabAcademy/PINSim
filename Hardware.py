@@ -5,7 +5,7 @@ class Hardware:
     name = "Hardware"
     pixel_array_width   = int(_config["HardwareConfig"]["pixel_array_width"])
     pixel_array_height  = int(_config["HardwareConfig"]["pixel_array_height"])
-    adc_number          = int(_config["HardwareConfig"]["pixel_array_width"])
+    adc_number          = int(_config["HardwareConfig"]["adc_number"])
     op_percentage       = [float(item) for item in _config["HardwareConfig"]["operations_percentage"].split(',')] #percentage of normal, sensig and computing ( total should be 100)
     box_size            = int(_config["HardwareConfig"]["box_size"])
     technology_size     = int(_config["HardwareConfig"]["technology_size"])

@@ -15,7 +15,7 @@ class AdcArray(Component.Component):
         else:
             self.total_adcs_in_compute = Hardware.parallelism_level #In MLP minimum ADC for reading the result of whole focal plane is 1
         self.total_adcs_in_sensing = math.ceil(Hardware.adc_number / Hardware.box_size) #in sensing mode
-        self.total_adcs_in_normal =  Hardware.adc_number #in normal mode
+        self.total_adcs_in_normal =  Hardware.pixel_array_width #in normal mode
 
         
         self.operation_delay_in_compute = self.delay + self.delay_adcs() + self.delay_adc_compute_addon()# delay to read one kernel in CNN or one hidden element in MLP
