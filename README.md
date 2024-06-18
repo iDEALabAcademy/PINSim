@@ -27,7 +27,7 @@ Pipsim is a simulation tool designed to impliment first layer of NN in/near pixe
 
 **For more information please read user_manual.pdf**
 
-#Questions
+## Questions
 If you have any comments or suggestions, please contact us via email:
 Sepehr Tabrizchi (sepehr.095@gmail.com), Mehrdad Morsali (mm2772@njit.edu), Shaahin Angizi (shaahin.angizi@gmail.com), and Arman Roohi (aroohi@uic.edu)
 

@@ -1,6 +1,11 @@
 from Hardware import Hardware
+
 class Sizing:
+    """
+    Sizing class to calculate power, area, and delay based on technology size.
+    """
     technology_size = Hardware.technology_size
+    
     area_conversion = {
         180: 12,
         130: 4.3,
@@ -29,27 +34,50 @@ class Sizing:
         22: 0.33
     }
 
-
     @classmethod
-    def calculate_power(self, power):
-        if self.technology_size in self.power_conversion:
-            return power * self.power_conversion[self.technology_size]
+    def calculate_power(cls, power):
+        """
+        Calculate the power based on the technology size.
+        
+        Parameters:
+        power (float): The base power value.
+        
+        Returns:
+        float: The adjusted power value based on the technology size.
+        """
+        if cls.technology_size in cls.power_conversion:
+            return power * cls.power_conversion[cls.technology_size]
         else:
             raise ValueError("Target technology node not in conversion factors.")
 
     @classmethod
-    def calculate_area(self, area):
-        if self.technology_size in self.area_conversion:
-            return area * self.area_conversion[self.technology_size]
+    def calculate_area(cls, area):
+        """
+        Calculate the area based on the technology size.
+        
+        Parameters:
+        area (float): The base area value.
+        
+        Returns:
+        float: The adjusted area value based on the technology size.
+        """
+        if cls.technology_size in cls.area_conversion:
+            return area * cls.area_conversion[cls.technology_size]
         else:
             raise ValueError("Target technology node not in conversion factors.")
 
     @classmethod
-    def calculate_delay(self, delay):
-        if self.technology_size in self.delay_conversion:
-            return delay * self.delay_conversion[self.technology_size]
+    def calculate_delay(cls, delay):
+        """
+        Calculate the delay based on the technology size.
+        
+        Parameters:
+        delay (float): The base delay value.
+        
+        Returns:
+        float: The adjusted delay value based on the technology size.
+        """
+        if cls.technology_size in cls.delay_conversion:
+            return delay * cls.delay_conversion[cls.technology_size]
         else:
             raise ValueError("Target technology node not in conversion factors.")
-
-
-    

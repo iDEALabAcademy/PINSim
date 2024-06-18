@@ -2,53 +2,81 @@ from Config import Config
 from Hardware import Hardware
 
 class Network:
+    """
+    Network class to read and store network configuration settings from the configuration file.
+    """
     _config = Config.config
     name = "Network"
     type = str(_config["NetworkConfig"]["type"])
 
     @classmethod
-    def _load_cnn_config(self):
-        self.kernel_number = int(self._config["NetworkConfig"]["kernel_number"])
-        self.kernel_width = int(self._config["NetworkConfig"]["kernel_width"])
-        self.kernel_height = int(self._config["NetworkConfig"]["kernel_height"])
-        self.stride = int(self._config["NetworkConfig"]["stride"])
-        self.padding = int(self._config["NetworkConfig"]["padding"])
-        self.kernel_size = self.kernel_height * self.kernel_width
-        self.total_weights = self.kernel_size * self.kernel_number
-        self.output_feature_map_width = self.calculate_output_height(Hardware.pixel_array_width)
-        self.output_feature_map_height = self.calculate_output_height(Hardware.pixel_array_height)
-        self.output_feature_map_size = self.output_feature_map_height * self.output_feature_map_width
+    def _load_cnn_config(cls):
+        """
+        Load the CNN-specific configuration settings.
+        """
+        cls.kernel_number = int(cls._config["NetworkConfig"]["kernel_number"])
+        cls.kernel_width = int(cls._config["NetworkConfig"]["kernel_width"])
+        cls.kernel_height = int(cls._config["NetworkConfig"]["kernel_height"])
+        cls.stride = int(cls._config["NetworkConfig"]["stride"])
+        cls.padding = int(cls._config["NetworkConfig"]["padding"])
+        cls.kernel_size = cls.kernel_height * cls.kernel_width
+        cls.total_weights = cls.kernel_size * cls.kernel_number
+        cls.output_feature_map_width = cls.calculate_output_height(Hardware.pixel_array_width)
+        cls.output_feature_map_height = cls.calculate_output_height(Hardware.pixel_array_height)
+        cls.output_feature_map_size = cls.output_feature_map_height * cls.output_feature_map_width
 
     @classmethod
-    def _load_other_config(self):
-        self.hidden_node = int(self._config["NetworkConfig"]["hidden_node"])
-        self.total_weights = int(Hardware.pixel_array_width) * int(Hardware.pixel_array_height) * self.hidden_node
+    def _load_other_config(cls):
+        """
+        Load the configuration settings for non-CNN networks.
+        """
+        cls.hidden_node = int(cls._config["NetworkConfig"]["hidden_node"])
+        cls.total_weights = int(Hardware.pixel_array_width) * int(Hardware.pixel_array_height) * cls.hidden_node
 
     @classmethod
-    def initialize(self):
-        if self.type == "CNN":
-            self._load_cnn_config()
+    def initialize(cls):
+        """
+        Initialize the Network class by loading the appropriate configuration settings.
+        """
+        if cls.type == "CNN":
+            cls._load_cnn_config()
         else:
-            self._load_other_config()
+            cls._load_other_config()
 
     @classmethod
-    def calculate_output_height(self, pixel_array_height):
-        if self.type == "CNN":
-            return ((pixel_array_height - self.kernel_height + (2 * self.padding)) // self.stride) + 1
+    def calculate_output_height(cls, pixel_array_height):
+        """
+        Calculate the output height of the feature map.
+        
+        Parameters:
+        pixel_array_height (int): The height of the input pixel array.
+        
+        Returns:
+        int: The output height of the feature map.
+        """
+        if cls.type == "CNN":
+            return ((pixel_array_height - cls.kernel_height + (2 * cls.padding)) // cls.stride) + 1
         else:
-            return self.hidden_node
+            return cls.hidden_node
 
     @classmethod
-    def print_detail(self, tab=""):
+    def print_detail(cls, tab=""):
+        """
+        Print the details of the network configuration.
+        
+        Parameters:
+        tab (str): The tab character(s) to prepend to each line. Default is an empty string.
+        
+        Returns:
+        str: A string representation of the network configuration details.
+        """
         tab += "\t"
-        result = ""
-        result += '****************************\n'
-        attrs = [attr for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("_")]
+        result = "****************************\n"
+        attrs = [attr for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("_")]
         for attr in attrs:
-            value = getattr(self, attr)
+            value = getattr(cls, attr)
             result += tab + f"{attr} = {value}\n"
         return result
 
 # # To use this 'static' class, you first initialize it with configuration.
 # Network.initialize()
-
