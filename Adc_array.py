@@ -21,7 +21,7 @@ class AdcArray(Component.Component):
         else:
             self.total_adcs_in_compute = Hardware.parallelism_level  # In MLP, minimum ADC for reading the result of the whole focal plane is 1
         
-        self.total_adcs_in_sensing = math.ceil(Hardware.adc_number / Hardware.box_size)  # In sensing mode
+        self.total_adcs_in_sensing = math.ceil(Hardware.pixel_array_width / Hardware.box_size)  # In sensing mode
         self.total_adcs_in_normal = Hardware.pixel_array_width  # In normal mode
 
         # Calculate operation delay in different modes
