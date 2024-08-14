@@ -1,13 +1,13 @@
-# PNSim
+# PINSim
 
-PNSim is a simulation tool designed to impliment first layer of NN in/near pixel. 
+PINSim is a simulation tool designed to impliment first layer of NN in/near pixel. 
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/iDEALabAcademy/PNSim.git
-   cd PNSim
+   git clone https://github.com/iDEALabAcademy/PINSim.git
+   cd PINSim
 
 2. Install the required dependencies:
     ```bash
