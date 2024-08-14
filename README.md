@@ -35,4 +35,4 @@ For more related works and updates please visit our websites: https://www.ideala
 
 ## Citation Information
 If you use this tool in your research, please cite the following paper:
-[1] Roohi, A., Tabrizchi, S., Morsali, M., Pan, D. Z., & Angizi, S. (2023). PNSim: A Behavior-Level Modeling Tool for CNN Processing-in-Pixel Accelerators. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems.
+[1] Roohi, A., Tabrizchi, S., Morsali, M., Pan, D. Z., & Angizi, S. (2023). PIPSim: A Behavior-Level Modeling Tool for CNN Processing-in-Pixel Accelerators. IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems.
