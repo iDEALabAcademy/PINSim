@@ -32,6 +32,7 @@ class Network:
         """
         cls.hidden_node = int(cls._config["NetworkConfig"]["hidden_node"])
         cls.total_weights = int(Hardware.pixel_array_width) * int(Hardware.pixel_array_height) * cls.hidden_node
+        cls.output_feature_map_height = cls.hidden_node
 
     @classmethod
     def initialize(cls):

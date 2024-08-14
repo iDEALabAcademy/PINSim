@@ -87,7 +87,7 @@ class AdcArray(Component.Component):
         Returns:
         float: The power consumption of the ADC compute addon.
         """
-        return Hardware.cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_power() * Hardware.cp_per_adc * Hardware.parallelism_level
+        return Hardware.cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_power() * Hardware.parallelism_level
 
     def delay_adc_compute_addon(self):
         """
@@ -105,7 +105,7 @@ class AdcArray(Component.Component):
         Returns:
         float: The area of the ADC compute addon.
         """
-        return Hardware.cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_area() * Hardware.cp_per_adc
+        return Hardware.cp_in_adc * self.total_adcs_in_compute * self._cp_adc.get_area() * Hardware.parallelism_level
 
     def print_detail(self, tab=""):
         """

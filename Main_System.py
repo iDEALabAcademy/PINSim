@@ -55,6 +55,12 @@ class Main_System(Component):
         )
         self.total_delay = self.delay + max(self.total_normal_delay, self.total_sensing_delay, self.computing_delay)
 
+
+
+        self.total_power_in_sensing = self.power + self._pixel_array.total_power_in_sensing + self._adc_array.total_power_in_sensing + self._controller.total_power_in_sensing + self._global_memory.total_power + self._buffer_memory.total_power
+        self.total_power_in_normal = self.power + self._pixel_array.total_power_in_normal + self._adc_array.total_power_in_normal + self._controller.total_power_in_normal + self._global_memory.total_power + self._buffer_memory.total_power
+        self.total_power_in_compute =  self.power + self._pixel_array.total_power_in_compute + self._adc_array.total_power_in_compute + self._controller.total_power_in_compute + self._global_memory.total_read_power + self._buffer_memory.total_write_power + self._buffer_memory.total_read_power + self._global_memory.total_power + self._buffer_memory.total_power
+        
         # Calculate power
         self.total_power = (
             self.power +

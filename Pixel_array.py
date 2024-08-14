@@ -54,7 +54,7 @@ class PixelArray(Component.Component):
         Returns:
         float: The power consumption of the pixel compute addon.
         """
-        return Hardware.cp_in_pixel * self.total_pixels * self._cp_pixel.get_power() * Hardware.cp_per_pixel
+        return Hardware.cp_in_pixel * self.total_pixels * self._cp_pixel.get_power() * Hardware.parallelism_level
 
     def delay_pixel_compute_addon(self):
         """
@@ -72,7 +72,7 @@ class PixelArray(Component.Component):
         Returns:
         float: The area of the pixel compute addon.
         """
-        return Hardware.cp_in_pixel * self.total_pixels * self._cp_pixel.get_area() * Hardware.cp_per_pixel
+        return Hardware.cp_in_pixel * self.total_pixels * self._cp_pixel.get_area() * Hardware.parallelism_level
 
     def power_pixels(self):
         """
